@@ -1,0 +1,232 @@
+#include <iostream>
+#include <fstream>
+#include <cctype>
+#include <cstdlib>
+#include <string>
+#include <vector>
+
+
+using namespace std;
+double RecipeCalorie, caloriespermeal, calories; //Global Variables
+
+
+void RecipeEdit(ifstream& recipeOut, ofstream& fout)
+{
+	int num;
+	char next;
+	char out[69];
+	recipeOut.get(next);
+
+	do
+	{
+
+		num = atoi(&next);
+		while (isdigit(recipeOut.peek()))
+		{
+			next = recipeOut.get();
+			num = (num * 10) + atoi(&next);
+			RecipeCalorie = num;
+		}
+		//Need to multiply num by user meal calories/recipe calories
+		num = num * (caloriespermeal / RecipeCalorie);
+
+		_itoa_s(num, out, 10);
+		fout << out << endl;
+		next = recipeOut.get();
+		break;
+	} while (!recipeOut.eof());
+	{
+		while (!recipeOut.eof()) {
+			if (isdigit(next))
+			{
+
+				num = atoi(&next);
+				while (isdigit(recipeOut.peek()))
+				{
+					next = recipeOut.get();
+					num = (num * 10) + atoi(&next);
+				}
+				//Need to multiply num by user meal calories/recipe calories
+				num = num * (caloriespermeal / RecipeCalorie);
+				_itoa_s(num, out, 10);
+				fout << out << endl;
+				next = recipeOut.get();
+
+			}
+			fout << next;
+			next = recipeOut.get();
+		}
+	}
+
+}
+
+void mealGenerator() //Function for outputting recipes, I have not yet impletmented the random selection from a recipe book or the ability to edit recipie files into this so all this does is output the one file I have named text.txt the correct amount of times 
+{
+	int calories, days, meals;
+
+	cout << "Please enter how many calories your would like to consume daily. \n";
+	cin >> calories;
+	cout << "Please enter how many days you would like recipes for. \n";
+	cin >> days;
+
+	if (calories < 2500)
+	{
+		meals = 3;
+	}
+	else if (calories == 2500 || calories < 3500)
+	{
+		meals = 4;
+	}
+	else if (calories >= 3500)
+	{
+		meals = 5;
+	}
+
+	meals = meals * days;
+	caloriespermeal = calories / meals;
+	for (meals; meals > 0; meals--) //This loops the correct number of times for recipe output. Inside this loop I will add the recipe edit and randomization of output recipes
+	{
+		ifstream recipeOut;//Copy and paste of drive function of RecipeEditFunction Program
+		ofstream fout;
+
+		vector <string> filenames;
+		int random_index = rand() % filenames.size();
+
+		recipeOut.open(filenames[random_index]);
+		if (recipeOut.fail())
+		{
+			cout << "Input file opening failed. \n";
+			exit(1);
+		}
+
+		fout.open("EditedRecipe.txt");
+		if (fout.fail())
+		{
+			cout << "Output file opening failed. \n";
+			exit(1);
+		}
+
+		RecipeEdit(recipeOut, fout);
+		cout << "End of editing files. \n";
+
+		ifstream recipeOut2;
+		recipeOut2.open("EditedRecipe.txt");
+		if (recipeOut2.fail())
+		{
+			cout << "Output file opening failed. \n";
+			exit(1);
+		}
+
+		string line;
+
+		while (getline(recipeOut2, line)) //Outputs recipe file to user
+		{
+			cout << line << endl;
+		}
+
+		fout.close();
+		recipeOut.close();
+		recipeOut2.close();
+	}
+
+}
+
+//This function will add a recipe to a file that the user names.
+void addRecipe()
+{
+	string instructions, calories, name, ingredient, numIngredient, unit;
+	char test;
+
+	cout << "Please enter number of calories in recipe.\n";
+	cin.ignore();
+	getline(cin, calories);
+
+	cout << "Please enter name of recipe. \n";
+	getline(cin, name);
+	ofstream newFile(name);
+	newFile << calories << endl;
+	newFile << name << endl;
+
+	vector <string> filenames;
+	filenames.push_back(name);
+
+	cout << "Please add an ingredient. \n";
+	getline(cin, ingredient);
+	newFile << ingredient << endl;
+
+	cout << "Please enter amount of ingredient.\n";
+	getline(cin, numIngredient);
+	newFile << numIngredient << endl;
+
+	cout << "Please enter unit for ingredient.\n";
+	getline(cin, unit);
+	newFile << unit << endl;
+
+	cout << "If you would like to add another ingredient please enter Y if you would like to enter cooking instructions please enter N. \n";
+	cin >> test;
+
+	if (test == 'y' || test == 'Y')
+	{
+		cout << "Please add an ingredient. \n";
+		cin >> ingredient;
+		newFile << ingredient << endl;
+		cout << "Please enter amount of ingredient.\n";
+		cin >> numIngredient;
+		newFile << numIngredient << endl;
+		cout << "Please enter unit for ingredient.\n";
+		cin >> unit;
+		newFile << unit << endl;
+		cout << "If you would like to add another ingredient please enter Y if you would like to enter cooking instructions please enter N. \n";
+		cin >> test;
+	}
+	if (test == 'n' || test == 'N')
+	{
+
+		cout << "Please type cooking instructions. (Please do not enter any type out any integers to word.) \n";
+
+		cin.ignore();
+		getline(cin, instructions);
+		newFile << instructions << endl;
+		cout << "To add another recipe type 1. \n";
+		cout << "To enter the meal generator type 2. \n";
+		cout << "To exit the program hit any other key and press enter. \n";
+		cin >> test;
+	}
+	newFile.close();
+
+	if (test == '1')
+	{
+		addRecipe();
+	}
+
+	if (test == '2')
+	{
+		mealGenerator();
+	}
+	return;
+}
+int main()
+{
+	int menu;
+
+	cout << "If you would like to enter a recipe enter 1." << endl;
+	cout << "If you would like to enter the meal generator enter 2." << endl;
+	cin >> menu;
+
+	switch (menu)
+	{
+	case 1:
+		addRecipe();
+		break;
+
+	case 2:
+		mealGenerator();
+		break;
+
+	default:
+		cout << "Invalid Input.";
+		break;
+	}
+
+	return 0;
+}
