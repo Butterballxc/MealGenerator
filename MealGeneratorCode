@@ -60,7 +60,7 @@ void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 
 }
 
-void mealGenerator() //Function for outputting recipes, I have not yet impletmented the random selection from a recipe book or the ability to edit recipie files into this so all this does is output the one file I have named text.txt the correct amount of times 
+void mealGenerator(vector<string>& filenames) //Function for outputting recipes, I have not yet impletmented the random selection from a recipe book or the ability to edit recipie files into this so all this does is output the one file I have named text.txt the correct amount of times 
 {
 	int calories, days, meals;
 
@@ -132,7 +132,7 @@ void mealGenerator() //Function for outputting recipes, I have not yet impletmen
 }
 
 //This function will add a recipe to a file that the user names.
-void addRecipe()
+void addRecipe(vector<string>& filenames)
 {
 	string instructions, calories, name, ingredient, numIngredient, unit;
 	char test;
@@ -147,7 +147,6 @@ void addRecipe()
 	newFile << calories << endl;
 	newFile << name << endl;
 
-	vector <string> filenames;
 	filenames.push_back(name);
 
 	cout << "Please add an ingredient. \n";
@@ -196,18 +195,19 @@ void addRecipe()
 
 	if (test == '1')
 	{
-		addRecipe();
+		addRecipe(filenames);
 	}
 
 	if (test == '2')
 	{
-		mealGenerator();
+		mealGenerator(filenames);
 	}
 	return;
 }
 int main()
 {
 	int menu;
+	vector <string> filenames;
 
 	cout << "If you would like to enter a recipe enter 1." << endl;
 	cout << "If you would like to enter the meal generator enter 2." << endl;
@@ -216,11 +216,11 @@ int main()
 	switch (menu)
 	{
 	case 1:
-		addRecipe();
+		addRecipe(filenames);
 		break;
 
 	case 2:
-		mealGenerator();
+		mealGenerator(filenames);
 		break;
 
 	default:
