@@ -3,20 +3,24 @@
 #include <cctype>
 #include <cstdlib>
 #include <string>
-#include <vector>
-
+#include <ctime>
 
 using namespace std;
-double RecipeCalorie, caloriespermeal, calories; //Global Variables
+//Global Variables 
+double RecipeCalorie, caloriespermeal, calories;
 
 
 void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 {
-	int num;
+	//#4 Variables
+	double num;
 	char next;
+	//#5 Arrays; aware that I need significatly more for this requirement, am working on a way to replace my vectors with arrays to hopfully fulfil this project requirement
 	char out[69];
+	//#6 File I/O
 	recipeOut.get(next);
 
+	//#9 Control
 	do
 	{
 
@@ -34,9 +38,11 @@ void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 		fout << out << endl;
 		next = recipeOut.get();
 		break;
-	} while (!recipeOut.eof());
+	} while (!recipeOut.eof()); //#7 Loops
 	{
-		while (!recipeOut.eof()) {
+		while (!recipeOut.eof()) //#7 Loops
+		{
+			//#9 Control
 			if (isdigit(next))
 			{
 
@@ -59,24 +65,29 @@ void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 	}
 
 }
-
-void mealGenerator(vector<string>& filenames) //Function for outputting recipes, I have not yet impletmented the random selection from a recipe book or the ability to edit recipie files into this so all this does is output the one file I have named text.txt the correct amount of times 
+//Function for outputting recipes
+void mealGenerator(string recipefile[25])
 {
-	int calories, days, meals;
+	//#4 Variables
+	int calories, days, meals, sizeofarray;
 
+	//#8 Interactionnter
 	cout << "Please enter how many calories your would like to consume daily. \n";
 	cin >> calories;
 	cout << "Please enter how many days you would like recipes for. \n";
 	cin >> days;
 
+	//#9 Control
 	if (calories < 2500)
 	{
 		meals = 3;
 	}
+	//#9 Control
 	else if (calories == 2500 || calories < 3500)
 	{
 		meals = 4;
 	}
+	//#9 Control
 	else if (calories >= 3500)
 	{
 		meals = 5;
@@ -84,15 +95,26 @@ void mealGenerator(vector<string>& filenames) //Function for outputting recipes,
 
 	meals = meals * days;
 	caloriespermeal = calories / meals;
-	for (meals; meals > 0; meals--) //This loops the correct number of times for recipe output. Inside this loop I will add the recipe edit and randomization of output recipes
+	
+	
+	//This loops the correct number of times for recipe output. Inside this loop I will add the recipe edit and randomization of output recipes; #7 Loops
+	for (meals; meals > 0; meals--)
 	{
-		ifstream recipeOut;//Copy and paste of drive function of RecipeEditFunction Program
+		ifstream recipeOut;
 		ofstream fout;
 
-		vector <string> filenames;
-		int random_index = rand() % filenames.size();
-
-		recipeOut.open(filenames[random_index]);
+		for (int i = 0; i < 25; i++)
+		{
+			if (recipefile[i].empty())
+			{
+				sizeofarray = i;
+				break;
+			}
+		}
+		int randomIndex = rand() % sizeofarray;
+		//#6 File I/O
+		recipeOut.open(recipefile[randomIndex]);
+		//#9 Control
 		if (recipeOut.fail())
 		{
 			cout << "Input file opening failed. \n";
@@ -100,6 +122,7 @@ void mealGenerator(vector<string>& filenames) //Function for outputting recipes,
 		}
 
 		fout.open("EditedRecipe.txt");
+		//#9 Control
 		if (fout.fail())
 		{
 			cout << "Output file opening failed. \n";
@@ -107,10 +130,10 @@ void mealGenerator(vector<string>& filenames) //Function for outputting recipes,
 		}
 
 		RecipeEdit(recipeOut, fout);
-		cout << "End of editing files. \n";
 
 		ifstream recipeOut2;
 		recipeOut2.open("EditedRecipe.txt");
+		//#9 Control
 		if (recipeOut2.fail())
 		{
 			cout << "Output file opening failed. \n";
@@ -119,7 +142,8 @@ void mealGenerator(vector<string>& filenames) //Function for outputting recipes,
 
 		string line;
 
-		while (getline(recipeOut2, line)) //Outputs recipe file to user
+		//Outputs recipe file to user; #7 Loops
+		while (getline(recipeOut2, line))
 		{
 			cout << line << endl;
 		}
@@ -131,61 +155,95 @@ void mealGenerator(vector<string>& filenames) //Function for outputting recipes,
 
 }
 
-//This function will add a recipe to a file that the user names.
-void addRecipe(vector<string>& filenames)
+//This function will add a recipe to a file that the user names and store them in a vector; chose a vector over an array as vectors will allocate more memory automatically as more files are added so their is no cap on how many recipes you can add. Also with an array I would have to sort the empty locations of the array out the be able to use the rand function im using with vectors
+void addRecipe(string recipefile[25])
 {
+	//#4 Variables
 	string instructions, calories, name, ingredient, numIngredient, unit;
 	char test;
+	static int i = 0;
 
 	cout << "Please enter number of calories in recipe.\n";
 	cin.ignore();
+	//#3 I/O
 	getline(cin, calories);
 
 	cout << "Please enter name of recipe. \n";
+	//#3 I/O
 	getline(cin, name);
+
+	for (i; i < 25; i++)
+	{
+		if (recipefile[i].empty())
+		{
+			//removed i = i + 1;
+			recipefile[i] = name;
+			i = i + 1;
+			cout << "You have " << i << " recipes entered\n";
+		}
+			break;
+		}
+		
 	ofstream newFile(name);
+	//#6 File I/O
 	newFile << calories << endl;
 	newFile << name << endl;
 
-	filenames.push_back(name);
 
 	cout << "Please add an ingredient. \n";
+	//#3 I/O
 	getline(cin, ingredient);
 	newFile << ingredient << endl;
 
 	cout << "Please enter amount of ingredient.\n";
+	//#3 I/O
 	getline(cin, numIngredient);
 	newFile << numIngredient << endl;
 
 	cout << "Please enter unit for ingredient.\n";
+	//#3 I/O
 	getline(cin, unit);
 	newFile << unit << endl;
 
 	cout << "If you would like to add another ingredient please enter Y if you would like to enter cooking instructions please enter N. \n";
 	cin >> test;
 
-	if (test == 'y' || test == 'Y')
+	//#9 Control
+	while (test == 'y' || test == 'Y')
 	{
+		cin.ignore();
+		//#8 Interaction
 		cout << "Please add an ingredient. \n";
-		cin >> ingredient;
+		//#3 I/O
+		getline(cin, ingredient);
 		newFile << ingredient << endl;
+
+		//#8 Interaction
 		cout << "Please enter amount of ingredient.\n";
-		cin >> numIngredient;
+		getline(cin, numIngredient);
 		newFile << numIngredient << endl;
+
+		//#8 Interaction
 		cout << "Please enter unit for ingredient.\n";
-		cin >> unit;
+		getline(cin, unit);
 		newFile << unit << endl;
+
+		//#8 Interaction
 		cout << "If you would like to add another ingredient please enter Y if you would like to enter cooking instructions please enter N. \n";
 		cin >> test;
 	}
+
+	//#9 Control
 	if (test == 'n' || test == 'N')
 	{
 
-		cout << "Please type cooking instructions. (Please do not enter any type out any integers to word.) \n";
+		cout << "Please type cooking instructions. (Please type out any integers to words.) \n";
 
 		cin.ignore();
+		//#3 I/O
 		getline(cin, instructions);
 		newFile << instructions << endl;
+		//#8 Interaction
 		cout << "To add another recipe type 1. \n";
 		cout << "To enter the meal generator type 2. \n";
 		cout << "To exit the program hit any other key and press enter. \n";
@@ -193,34 +251,39 @@ void addRecipe(vector<string>& filenames)
 	}
 	newFile.close();
 
+	//#9 Control
 	if (test == '1')
 	{
-		addRecipe(filenames);
+		addRecipe(recipefile);
 	}
 
+	//#9 Control
 	if (test == '2')
 	{
-		mealGenerator(filenames);
+		mealGenerator(recipefile);
 	}
 	return;
 }
 int main()
 {
 	int menu;
-	vector <string> filenames;
+	string recipefile[25];
 
+	//#8 Interaction
 	cout << "If you would like to enter a recipe enter 1." << endl;
 	cout << "If you would like to enter the meal generator enter 2." << endl;
 	cin >> menu;
 
+
+	//#9 Control
 	switch (menu)
 	{
 	case 1:
-		addRecipe(filenames);
+		addRecipe(recipefile);
 		break;
 
 	case 2:
-		mealGenerator(filenames);
+		mealGenerator(recipefile);
 		break;
 
 	default:
@@ -230,3 +293,4 @@ int main()
 
 	return 0;
 }
+
