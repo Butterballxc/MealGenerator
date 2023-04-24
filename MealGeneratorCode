@@ -7,20 +7,16 @@
 
 using namespace std;
 //Global Variables 
-double RecipeCalorie, caloriespermeal, calories;
+float RecipeCalorie, caloriespermeal, calories;
 
 
 void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 {
-	//#4 Variables
-	double num;
+	float num;
 	char next;
-	//#5 Arrays; aware that I need significatly more for this requirement, am working on a way to replace my vectors with arrays to hopfully fulfil this project requirement
-	char out[69];
-	//#6 File I/O
+	char out[70];
 	recipeOut.get(next);
 
-	//#9 Control
 	do
 	{
 
@@ -31,18 +27,20 @@ void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 			num = (num * 10) + atoi(&next);
 			RecipeCalorie = num;
 		}
+
 		//Need to multiply num by user meal calories/recipe calories
 		num = num * (caloriespermeal / RecipeCalorie);
-
-		_itoa_s(num, out, 10);
-		fout << out << endl;
+		sprintf_s(out, "%.2f", num);
+		fout << out;
 		next = recipeOut.get();
 		break;
-	} while (!recipeOut.eof()); //#7 Loops
-	{
-		while (!recipeOut.eof()) //#7 Loops
+	}
+	
+	while (!recipeOut.eof()); 
+	{	
+		while (!recipeOut.eof()) 
 		{
-			//#9 Control
+			
 			if (isdigit(next))
 			{
 
@@ -54,7 +52,7 @@ void RecipeEdit(ifstream& recipeOut, ofstream& fout)
 				}
 				//Need to multiply num by user meal calories/recipe calories
 				num = num * (caloriespermeal / RecipeCalorie);
-				_itoa_s(num, out, 10);
+				sprintf_s(out, "%.2f", num);
 				fout << out << endl;
 				next = recipeOut.get();
 
@@ -103,6 +101,8 @@ void mealGenerator(string recipefile[25])
 		ifstream recipeOut;
 		ofstream fout;
 
+		//This creates a seed for the random number generator
+		//srand(time(nullptr));
 		for (int i = 0; i < 25; i++)
 		{
 			if (recipefile[i].empty())
@@ -293,4 +293,3 @@ int main()
 
 	return 0;
 }
-
